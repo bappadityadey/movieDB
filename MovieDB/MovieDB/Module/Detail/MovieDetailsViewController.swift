@@ -27,6 +27,13 @@ class MovieDetailsViewController: UIViewController {
         if let vm = viewModel {
             bind(to: vm)
         }
+        
+        let favButton = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(favouriteMovieAction))
+        self.navigationItem.rightBarButtonItem = favButton
+    }
+    
+    @objc func favouriteMovieAction(){
+         print("clicked")
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -60,6 +67,7 @@ class MovieDetailsViewController: UIViewController {
     }
 
     private func show(_ movieDetails: MovieViewModel) {
+        title = movieDetails.title
         header.text = movieDetails.title
         subtitle.text = movieDetails.subtitle
         rating.text = movieDetails.rating
