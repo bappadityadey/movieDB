@@ -1,9 +1,8 @@
 //
 //  AutoMockable.swift
-//  TMDB
+//  MovieDB
 //
-//  Created by Maksym Shcheglov on 08/05/2020.
-//  Copyright © 2020 Maksym Shcheglov. All rights reserved.
+//  Created by Bappaditya Dey on 07/07/21.
 //
 
 import Foundation

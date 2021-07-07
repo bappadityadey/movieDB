@@ -1,9 +1,8 @@
 //
 //  ImageLoader.swift
-//  TMDB
+//  MovieDB
 //
-//  Created by Maksym Shcheglov on 05/10/2019.
-//  Copyright © 2019 Maksym Shcheglov. All rights reserved.
+//  Created by Bappaditya Dey on 07/07/21.
 //
 
 import Foundation

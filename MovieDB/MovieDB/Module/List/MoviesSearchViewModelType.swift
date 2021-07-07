@@ -1,14 +1,13 @@
 //
 //  MoviesSearchViewModelType.swift
-//  TMDB
+//  MovieDB
 //
-//  Created by Maksym Shcheglov on 02/10/2019.
-//  Copyright © 2019 Maksym Shcheglov. All rights reserved.
+//  Created by Bappaditya Dey on 07/07/21.
 //
 
 import Combine
 
-struct MoviesSearchViewModelInput {
+struct MoviesListViewModelInput {
     /// called when a screen becomes visible
     let appear: AnyPublisher<Void, Never>
     // triggered when the search query is updated
@@ -43,5 +42,7 @@ extension MoviesSearchState: Equatable {
 typealias MoviesSearchViewModelOuput = AnyPublisher<MoviesSearchState, Never>
 
 protocol MoviesSearchViewModelType {
-    func transform(input: MoviesSearchViewModelInput) -> MoviesSearchViewModelOuput
+    func transform(input: MoviesListViewModelInput) -> MoviesSearchViewModelOuput
+    func fetchNextPageData(page: Int) -> MoviesSearchViewModelOuput
+    var totalPages: Int { get set }
 }

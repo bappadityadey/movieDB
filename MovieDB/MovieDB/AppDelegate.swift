@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         return nil
     }
-    private var initialViewController: MoviesSearchViewController?
+    private var initialViewController: MoviesListViewController?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         configureReachability()
@@ -66,7 +66,7 @@ extension AppDelegate {
     /// Configures the window using the mocking view controller as the root
     private func configureWindow() {
         // Initial view controller will be displayed first
-        if let initViewController = UIViewController.getViewController(ofType: MoviesSearchViewController.self, fromStoryboardName: "NowPlayingMovies", storyboardId: MoviesSearchViewController.className, bundle: .main) {
+        if let initViewController = UIViewController.getViewController(ofType: MoviesListViewController.self, fromStoryboardName: "MoviesDB", storyboardId: MoviesListViewController.className, bundle: .main) {
             initialViewController = initViewController
         }
         configureWindow(with: initialViewController)

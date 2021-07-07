@@ -1,15 +1,17 @@
 //
 //  MoviesSearchViewController.swift
-//  TMDB
+//  MovieDB
 //
-//  Created by Maksym Shcheglov on 02/10/2019.
-//  Copyright © 2019 Maksym Shcheglov. All rights reserved.
+//  Created by Bappaditya Dey on 07/07/21.
 //
 
 import UIKit
 import Combine
 
-class MoviesSearchViewController : UIViewController {
+class MoviesListViewController : UIViewController {
+    
+    var currentPage: Int = 1
+    var isLoadingList: Bool = false
 
     private var cancellables: [AnyCancellable] = []
     private var viewModel: MoviesSearchViewModelType?
@@ -25,7 +27,6 @@ class MoviesSearchViewController : UIViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.tintColor = .label
         searchController.searchBar.delegate = self
-        searchController.searchBar.searchTextField.accessibilityIdentifier = AccessibilityIdentifiers.MoviesSearch.searchTextFieldId
         return searchController
     }()
     private lazy var dataSource = makeDataSource()
@@ -36,11 +37,20 @@ class MoviesSearchViewController : UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel = MoviesSearchViewModel(useCase: useCase)
+        viewModel = MoviesListViewModel(useCase: useCase, page: currentPage)
         configureUI()
         if let vm = viewModel {
             bind(to: vm)
         }
+    }
+    
+    func loadMoreItemsForList(){
+        currentPage += 1
+        self.isLoadingList = false
+        let output = viewModel?.fetchNextPageData(page: currentPage)
+        output?.sink(receiveValue: {[unowned self] state in
+            self.render(state)
+        }).store(in: &cancellables)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -63,7 +73,7 @@ class MoviesSearchViewController : UIViewController {
     private func bind(to viewModel: MoviesSearchViewModelType) {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
-        let input = MoviesSearchViewModelInput(appear: appear.eraseToAnyPublisher(),
+        let input = MoviesListViewModelInput(appear: appear.eraseToAnyPublisher(),
                                                search: search.eraseToAnyPublisher(),
                                                selection: selection.eraseToAnyPublisher(),
                                                load: load.eraseToAnyPublisher())
@@ -96,7 +106,7 @@ class MoviesSearchViewController : UIViewController {
     }
 }
 
-fileprivate extension MoviesSearchViewController {
+fileprivate extension MoviesListViewController {
     enum Section: CaseIterable {
         case movies
     }
@@ -109,7 +119,6 @@ fileprivate extension MoviesSearchViewController {
                     assertionFailure("Failed to dequeue \(MovieTableViewCell.self)!")
                     return UITableViewCell()
                 }
-                cell.accessibilityIdentifier = "\(AccessibilityIdentifiers.MoviesSearch.cellId).\(indexPath.row)"
                 cell.bind(to: movieViewModel)
                 return cell
             }
@@ -118,15 +127,18 @@ fileprivate extension MoviesSearchViewController {
 
     func update(with movies: [MovieViewModel], animate: Bool = true) {
         DispatchQueue.main.async {
-            var snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
-            snapshot.appendSections(Section.allCases)
+            var snapshot = self.dataSource.snapshot()
+            if snapshot.itemIdentifiers.isEmpty {
+                snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
+                snapshot.appendSections(Section.allCases)
+            }
             snapshot.appendItems(movies, toSection: .movies)
             self.dataSource.apply(snapshot, animatingDifferences: animate)
         }
     }
 }
 
-extension MoviesSearchViewController: UISearchBarDelegate {
+extension MoviesListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         search.send(searchText)
     }
@@ -136,7 +148,7 @@ extension MoviesSearchViewController: UISearchBarDelegate {
     }
 }
 
-extension MoviesSearchViewController: UITableViewDelegate {
+extension MoviesListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let snapshot = dataSource.snapshot()
@@ -145,14 +157,21 @@ extension MoviesSearchViewController: UITableViewDelegate {
         self.showMovieDetails(forMovie: movieId)
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastItem = dataSource.snapshot().itemIdentifiers.count - 1
+        if indexPath.row == lastItem, currentPage < (self.viewModel?.totalPages ?? 1) - 1 {
+            loadMoreItemsForList()
+        }
+    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         searchController.searchBar.resignFirstResponder()
     }
 }
-extension MoviesSearchViewController {
+extension MoviesListViewController {
     func showMovieDetails(forMovie movieId: Int) {
-        if let vc = UIViewController.getViewController(ofType: MovieDetailsViewController.self, fromStoryboardName: "NowPlayingMovies", storyboardId: MovieDetailsViewController.className, bundle: .main) {
+        if let vc = UIViewController.getViewController(ofType: MovieDetailsViewController.self, fromStoryboardName: "MoviesDB", storyboardId: MovieDetailsViewController.className, bundle: .main) {
             let vm = MovieDetailsViewModel(movieId: movieId, useCase: useCase)
             vc.viewModel = vm
             self.navigationController?.pushViewController(vc, animated: true)
