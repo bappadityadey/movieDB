@@ -32,16 +32,9 @@ extension Movie {
     }
     var subtitle: String {
         let genresDescription = genreNames.joined(separator: ", ")
-        return "\(releaseYear) | \(genresDescription)"
+        return "\(releaseDate) | \(genresDescription)"
     }
-    var releaseYear: Int {
-        let date = release_date.flatMap { Movie.dateFormatter.date(from: $0) } ?? Date()
-        return Calendar.current.component(.year, from: date)
+    var releaseDate: String {
+        return release_date ?? "2021"
     }
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
 }
