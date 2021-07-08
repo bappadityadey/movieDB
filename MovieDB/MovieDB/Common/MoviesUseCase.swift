@@ -17,13 +17,16 @@ protocol MoviesUseCaseType: AutoMockable {
     /// Fetches details for movie with specified id
     func movieDetails(with id: Int) -> AnyPublisher<Result<Movie, Error>, Never>
 
-    // Loads image for the given movie
+    /// Loads image for the given movie
     func loadImage(for movie: Movie, size: ImageSize) -> AnyPublisher<UIImage?, Never>
     
-    // Fetches latest playing movies
+    /// Fetches latest playing movies
     func fetchLatestMovies(with page: Int) -> AnyPublisher<Result<Movies, Error>, Never>
     
+    /// Fetches offline movies
     func loadOfflineMoviesList() -> AnyPublisher<[Movie]?, Never>
+    
+    /// Fetches selected offline movie
     func loadOfflineMovie(with id: Int) -> AnyPublisher<Movie?, Never>
 }
 

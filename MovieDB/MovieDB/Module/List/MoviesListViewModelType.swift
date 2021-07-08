@@ -14,7 +14,7 @@ struct MoviesListViewModelInput {
     let search: AnyPublisher<String, Never>
     /// called when the user selected an item from the list
     let selection: AnyPublisher<Int, Never>
-    
+    /// called when the screen is loaded
     let load: AnyPublisher<Int, Never>
 }
 

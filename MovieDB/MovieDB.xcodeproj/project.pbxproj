@@ -261,8 +261,8 @@
 		3E26C3B32695C2BD00B07386 /* Module */ = {
 			isa = PBXGroup;
 			children = (
-				3E26C3DC2695FB4900B07386 /* Detail */,
 				3E26C3B42695C2BD00B07386 /* List */,
+				3E26C3DC2695FB4900B07386 /* Detail */,
 			);
 			path = Module;
 			sourceTree = "<group>";
