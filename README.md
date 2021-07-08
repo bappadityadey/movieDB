@@ -11,7 +11,7 @@ Small app that fetches a list of recent playing movies from The Movie Database (
 
 # Tech Stack
 Swift 5,
-Minimum Deployment Target: 14.5
+Minimum Deployment Target: 14.5,
 Supported Paltforms: iPhone, iPad, iPad Touch
 
 # Architecture
