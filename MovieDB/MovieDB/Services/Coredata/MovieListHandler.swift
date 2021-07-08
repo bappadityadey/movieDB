@@ -31,7 +31,6 @@ class MovieListHandler {
                     nowPlayingMO.setValue(movie.subtitle, forKey: "subtitle")
                     nowPlayingMO.setValue(movie.overview, forKey: "overview")
                     nowPlayingMO.setValue(movie.poster_path, forKey: "poster_path")
-                    //nowPlayingMO.setValue(movie.genres, forKey: "genres")
                     nowPlayingMO.setValue(movie.genre_ids.map{ $0.map{ $0.rawValue }}, forKey: "genre_ids")
                     nowPlayingMO.setValue(index, forKey: "index")
                     nowPlayingMO.setValue(String(format: "%.2f", movie.voteAverage ?? 0.0), forKey: "rating")

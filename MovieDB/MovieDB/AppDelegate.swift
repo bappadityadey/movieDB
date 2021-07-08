@@ -128,21 +128,3 @@ extension AppDelegate {
         }
     }
 }
-
-
-extension FileManager {
-    func documentDirectoryPath() throws -> String? {
-        var docDir: String?
-        do {
-        let documentsURL = try
-            FileManager.default.url(for: .documentDirectory,
-                                    in: .userDomainMask,
-                                    appropriateFor: nil,
-                                    create: false)
-            docDir = documentsURL.path
-        } catch {
-            print("could not get docDirPath due to FileManager error: \(error)")
-        }
-        return docDir
-    }
-}

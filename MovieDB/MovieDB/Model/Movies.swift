@@ -22,7 +22,7 @@ extension Movies: Decodable {
     }
 }
 
-struct Movie: Codable {
+struct Movie {
     let id: Int
     let title: String
     let overview: String
@@ -50,7 +50,7 @@ extension Movie: Hashable {
     }
 }
 
-extension Movie {
+extension Movie: Decodable {
     enum CodingKeys: String, CodingKey {
         case id
         case title

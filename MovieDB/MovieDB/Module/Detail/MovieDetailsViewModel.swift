@@ -35,4 +35,25 @@ class MovieDetailsViewModel: MovieDetailsViewModelType {
     private func viewModel(from movie: Movie) -> MovieViewModel {
         return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .original) })
     }
+    
+    func addToFavourite() {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
+            return
+        }
+        MovieDetailsHandler.addMovieInfoObjectToSavedItems(movieId, moc: context)
+    }
+    
+    func removeFromFavourite() {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
+            return
+        }
+        MovieDetailsHandler.removeMovieInfoObjectFromSavedItems(movieId, moc: context)
+    }
+    
+    func isMovieExistsInFavourites() -> Bool {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
+            return false
+        }
+        return MovieDetailsHandler.isMovieExistsInFavourites(movieId, moc: context)
+    }
 }

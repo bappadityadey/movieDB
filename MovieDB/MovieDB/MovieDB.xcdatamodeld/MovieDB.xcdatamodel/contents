@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="FavouriteMovieMO" representedClassName="FavouriteMovieMO" syncable="YES" codeGenerationType="category">
+        <attribute name="genre_ids" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Int]"/>
+        <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="poster_path" optional="YES" attributeType="String"/>
+        <attribute name="rating" optional="YES" attributeType="String"/>
+        <attribute name="subtitle" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="MovieMO" representedClassName="MovieMO" syncable="YES" codeGenerationType="category">
         <attribute name="genre_ids" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[Int]"/>
         <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="isFavourite" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="poster_path" optional="YES" attributeType="String"/>
         <attribute name="rating" optional="YES" attributeType="String"/>
@@ -17,6 +31,7 @@
         </uniquenessConstraints>
     </entity>
     <elements>
-        <element name="MovieMO" positionX="-36" positionY="27" width="128" height="164"/>
+        <element name="FavouriteMovieMO" positionX="-36" positionY="99" width="128" height="149"/>
+        <element name="MovieMO" positionX="-36" positionY="27" width="128" height="149"/>
     </elements>
 </model>

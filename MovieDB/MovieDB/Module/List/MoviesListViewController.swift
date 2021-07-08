@@ -11,7 +11,7 @@ import Combine
 class MoviesListViewController : UIViewController {
     
     var currentPage: Int = 1
-    var isLoadingList: Bool = false
+    var isSearching: Bool = false
 
     private var cancellables: [AnyCancellable] = []
     private var viewModel: MoviesSearchViewModelType?
@@ -30,6 +30,7 @@ class MoviesListViewController : UIViewController {
         return searchController
     }()
     private lazy var dataSource = makeDataSource()
+    private var moviesList = [MovieViewModel]()
     
     fileprivate lazy var useCase: MoviesUseCaseType = MoviesUseCase(networkService: servicesProvider.network, imageLoaderService: servicesProvider.imageLoader)
 
@@ -46,7 +47,6 @@ class MoviesListViewController : UIViewController {
     
     func loadMoreItemsForList(){
         currentPage += 1
-        self.isLoadingList = false
         let output = viewModel?.fetchNextPageData(page: currentPage)
         output?.sink(receiveValue: {[unowned self] state in
             self.render(state)
@@ -90,26 +90,32 @@ class MoviesListViewController : UIViewController {
             output.sink(receiveValue: {[unowned self] state in
                 self.render(state)
             }).store(in: &cancellables)
+
+            let output2 = viewModel.searchMovies(input: input)
+
+            output2.sink(receiveValue: {[unowned self] state in
+                self.render(state, isSearch: true)
+            }).store(in: &cancellables)
         }
     }
 
-    private func render(_ state: MoviesSearchState) {
+    private func render(_ state: MoviesSearchState, isSearch: Bool = false) {
         switch state {
         case .idle:
             loadingView.isHidden = true
-            update(with: [], animate: true)
+            update(with: [], animate: true, isSearch: isSearch)
         case .loading:
             loadingView.isHidden = false
-            update(with: [], animate: true)
+            update(with: [], animate: true, isSearch: isSearch)
         case .noResults:
             loadingView.isHidden = true
-            update(with: [], animate: true)
+            update(with: [], animate: true, isSearch: isSearch)
         case .failure:
             loadingView.isHidden = true
-            update(with: [], animate: true)
+            update(with: [], animate: true, isSearch: isSearch)
         case .success(let movies):
             loadingView.isHidden = true
-            update(with: movies, animate: true)
+            update(with: movies, animate: true, isSearch: isSearch)
         }
     }
 }
@@ -133,14 +139,14 @@ fileprivate extension MoviesListViewController {
         )
     }
 
-    func update(with movies: [MovieViewModel], animate: Bool = true) {
+    func update(with movies: [MovieViewModel], animate: Bool = true, isSearch: Bool = false) {
+        if !isSearch {
+            moviesList.append(contentsOf: movies)
+        }
         DispatchQueue.main.async {
-            var snapshot = self.dataSource.snapshot()
-            if snapshot.itemIdentifiers.isEmpty {
-                snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
-                snapshot.appendSections(Section.allCases)
-            }
-            snapshot.appendItems(movies, toSection: .movies)
+            var snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
+            snapshot.appendSections(Section.allCases)
+            snapshot.appendItems(isSearch ? movies : self.moviesList.uniqueElements(), toSection: .movies)
             self.dataSource.apply(snapshot, animatingDifferences: animate)
         }
     }
@@ -148,11 +154,19 @@ fileprivate extension MoviesListViewController {
 
 extension MoviesListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        search.send(searchText)
+        if searchText == "" {
+            isSearching = false
+            update(with: [])
+        } else {
+            isSearching = true
+            search.send(searchText)
+        }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        search.send("")
+        isSearching = false
+        update(with: [])
+        //search.send("")
     }
 }
 
@@ -168,7 +182,7 @@ extension MoviesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastItem = dataSource.snapshot().itemIdentifiers.count - 1
-        if indexPath.row == lastItem, currentPage < (self.viewModel?.totalPages ?? 1) - 1 {
+        if indexPath.row == lastItem, currentPage < (self.viewModel?.totalPages ?? 1) - 1, !isSearching {
             loadMoreItemsForList()
         }
     }

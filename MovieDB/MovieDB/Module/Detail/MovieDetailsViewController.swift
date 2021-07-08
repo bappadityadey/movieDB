@@ -21,19 +21,39 @@ class MovieDetailsViewController: UIViewController {
     var viewModel: MovieDetailsViewModelType?
     private var cancellables: [AnyCancellable] = []
     private let appear = PassthroughSubject<Void, Never>()
+    private var isFavourited = false
+    private var btnFavourite: UIBarButtonItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         if let vm = viewModel {
             bind(to: vm)
         }
-        
-        let favButton = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(favouriteMovieAction))
-        self.navigationItem.rightBarButtonItem = favButton
+        isFavourited = viewModel?.isMovieExistsInFavourites() == true
+
+        btnFavourite = UIBarButtonItem()
+        btnFavourite?.target = self
+        btnFavourite?.action = #selector(favouriteMovieAction)
+        updateRighBarButton(isFavourite: isFavourited)
+    }
+    
+    func updateRighBarButton(isFavourite : Bool){
+        if isFavourite {
+            btnFavourite?.image = UIImage(systemName: "star.fill")
+        } else{
+            btnFavourite?.image = UIImage(systemName: "star")
+        }
+        self.navigationItem.rightBarButtonItem = btnFavourite
     }
     
     @objc func favouriteMovieAction(){
-         print("clicked")
+        self.isFavourited = !self.isFavourited
+        if viewModel?.isMovieExistsInFavourites() == true {
+            viewModel?.removeFromFavourite()
+        } else {
+            viewModel?.addToFavourite()
+        }
+        updateRighBarButton(isFavourite: isFavourited)
     }
 
     override func viewWillAppear(_ animated: Bool) {
