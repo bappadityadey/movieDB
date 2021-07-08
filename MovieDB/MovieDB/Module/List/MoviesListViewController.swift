@@ -12,6 +12,7 @@ class MoviesListViewController : UIViewController {
     
     var currentPage: Int = 1
     var isSearching: Bool = false
+    var isFavouriteSegment: Bool = false
 
     private var cancellables: [AnyCancellable] = []
     private var viewModel: MoviesListViewModelType?
@@ -22,6 +23,7 @@ class MoviesListViewController : UIViewController {
 
     @IBOutlet private var loadingView: UIActivityIndicatorView!
     @IBOutlet private var tableView: UITableView!
+    
     private lazy var searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
@@ -29,10 +31,17 @@ class MoviesListViewController : UIViewController {
         searchController.searchBar.delegate = self
         return searchController
     }()
+    
+    private lazy var segmentControl: UISegmentedControl = {
+        let segmentControl = UISegmentedControl(items: ["Now Playing", "Favourites"])
+        segmentControl.tintColor = .label
+        return segmentControl
+    }()
+    
     private lazy var dataSource = makeDataSource()
     private var moviesList = [MovieViewModel]()
     
-    fileprivate lazy var useCase: MoviesUseCaseType = MoviesUseCase(networkService: servicesProvider.network, imageLoaderService: servicesProvider.imageLoader)
+    private lazy var useCase: MoviesUseCaseType = MoviesUseCase(networkService: servicesProvider.network, imageLoaderService: servicesProvider.imageLoader)
 
     private let servicesProvider = ServicesProvider.defaultProvider()
 
@@ -56,66 +65,91 @@ class MoviesListViewController : UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         appear.send(())
+        showFavouriteMovies()
     }
 
     private func configureUI() {
         definesPresentationContext = true
-        title = NSLocalizedString("Now Playing", comment: "Current Playing Movies")
 
         tableView.tableFooterView = UIView()
         tableView.registerNib(cellClass: MovieTableViewCell.self)
         tableView.dataSource = dataSource
 
         navigationItem.searchController = self.searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
         searchController.isActive = true
+        
+        segmentControl.selectedSegmentIndex = 0
+        segmentControl.addTarget(self, action: #selector(segmentedValueChanged(_:)), for: .valueChanged)
+        self.navigationItem.titleView = segmentControl
+    }
+    
+    @objc
+    func segmentedValueChanged(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 1 {
+            isFavouriteSegment = true
+            navigationItem.searchController = nil
+            showFavouriteMovies()
+        } else {
+            isFavouriteSegment = false
+            navigationItem.searchController = self.searchController
+            update(with: [])
+        }
+    }
+    
+    private func showFavouriteMovies() {
+        guard isFavouriteSegment else {
+            return
+        }
+        let offlineMovies = MovieListHandler.fetchFavouritesMovieList(in: (AppDelegate.appDelegateInstance?.backgroundContext())!)
+        let result = offlineMovies.map({[unowned self] movie in
+            return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
+        })
+        render(.success(result))
     }
 
     private func bind(to viewModel: MoviesListViewModelType) {
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+        var output: MoviesListViewModelOuput?
+        let input = MoviesListViewModelInput(appear: appear.eraseToAnyPublisher(),
+                                               search: search.eraseToAnyPublisher(),
+                                               selection: selection.eraseToAnyPublisher(),
+                                               load: load.eraseToAnyPublisher())
+        
         if AppDelegate.appDelegateInstance?.isReachable == false {
-            let offlineMovies = MovieListHandler.fetchSavedNowPlayingMovieList(in: (AppDelegate.appDelegateInstance?.backgroundContext())!)
-            let result = offlineMovies.map({[unowned self] movie in
-                return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
-            })
-            render(.success(result))
+            output = viewModel.offlineMoviesList(input: input)
         } else {
-            cancellables.forEach { $0.cancel() }
-            cancellables.removeAll()
-            let input = MoviesListViewModelInput(appear: appear.eraseToAnyPublisher(),
-                                                   search: search.eraseToAnyPublisher(),
-                                                   selection: selection.eraseToAnyPublisher(),
-                                                   load: load.eraseToAnyPublisher())
-
-            let output = viewModel.transform(input: input)
-
-            output.sink(receiveValue: {[unowned self] state in
-                self.render(state)
-            }).store(in: &cancellables)
-
-            let output2 = viewModel.searchMovies(input: input)
-
-            output2.sink(receiveValue: {[unowned self] state in
-                self.render(state, isSearch: true)
-            }).store(in: &cancellables)
+            output = viewModel.transform(input: input)
         }
+        output?.sink(receiveValue: {[unowned self] state in
+            self.render(state)
+        }).store(in: &cancellables)
+
+        let searchOutput = viewModel.searchMovies(input: input)
+
+        searchOutput.sink(receiveValue: {[unowned self] state in
+            self.render(state, isSearch: true)
+        }).store(in: &cancellables)
     }
 
     private func render(_ state: MoviesSearchState, isSearch: Bool = false) {
         switch state {
         case .idle:
             loadingView.isHidden = true
-            update(with: [], isSearch: isSearch)
+            update(with: [])
         case .loading:
             loadingView.isHidden = false
-            update(with: [], isSearch: isSearch)
+            update(with: [])
         case .noResults:
             loadingView.isHidden = true
-            update(with: [], isSearch: isSearch)
+            update(with: [])
         case .failure:
             loadingView.isHidden = true
-            update(with: [], isSearch: isSearch)
+            update(with: [])
         case .success(let movies):
             loadingView.isHidden = true
-            update(with: movies, isSearch: isSearch)
+            update(with: movies)
         }
     }
 }
@@ -139,14 +173,14 @@ fileprivate extension MoviesListViewController {
         )
     }
 
-    func update(with movies: [MovieViewModel], isSearch: Bool = false) {
-        if !isSearch {
+    func update(with movies: [MovieViewModel]) {
+        if !isSearching {
             moviesList.append(contentsOf: movies)
         }
         DispatchQueue.main.async {
             var snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
             snapshot.appendSections(Section.allCases)
-            snapshot.appendItems(isSearch ? movies : self.moviesList.uniqueElements(), toSection: .movies)
+            snapshot.appendItems((self.isSearching || self.isFavouriteSegment) ? movies : self.moviesList.uniqueElements(), toSection: .movies)
             self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }

@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 extension Array where Element: Hashable {
     func uniqueElements() -> [Element] {
@@ -113,5 +114,24 @@ extension NSObject {
     /// Gives the string value of any NSObject instance
     class var className: String {
         return String(describing: self)
+    }
+}
+
+struct JSONConverter {
+    typealias JSON = [String: Any]
+
+    static func convertToJSONArray(moArray: [NSManagedObject]) -> [JSON] {
+        var jsonArray: [[String: Any]] = []
+        for item in moArray {
+            var dict: [String: Any] = [:]
+            for attribute in item.entity.attributesByName {
+                //check if value is present, then add key to dictionary so as to avoid the nil value crash
+                if let value = item.value(forKey: attribute.key) {
+                    dict[attribute.key] = value
+                }
+            }
+            jsonArray.append(dict)
+        }
+        return jsonArray
     }
 }

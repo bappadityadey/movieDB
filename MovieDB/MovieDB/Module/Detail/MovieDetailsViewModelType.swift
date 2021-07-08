@@ -36,6 +36,7 @@ typealias MovieDetailsViewModelOutput = AnyPublisher<MovieDetailsState, Never>
 
 protocol MovieDetailsViewModelType: AnyObject {
     func transform(input: MovieDetailsViewModelInput) -> MovieDetailsViewModelOutput
+    func offlineMovieDetails(input: MovieDetailsViewModelInput) -> MovieDetailsViewModelOutput
     func addToFavourite()
     func removeFromFavourite()
     func isMovieExistsInFavourites() -> Bool

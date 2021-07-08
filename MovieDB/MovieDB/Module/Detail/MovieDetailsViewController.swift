@@ -63,10 +63,13 @@ class MovieDetailsViewController: UIViewController {
 
     private func bind(to viewModel: MovieDetailsViewModelType) {
         let input = MovieDetailsViewModelInput(appear: appear.eraseToAnyPublisher())
-        
-        let output = viewModel.transform(input: input)
-
-        output.sink(receiveValue: {[unowned self] state in
+        var output: MovieDetailsViewModelOutput?
+        if AppDelegate.appDelegateInstance?.isReachable == false {
+            output = viewModel.offlineMovieDetails(input: input)
+        } else {
+            output = viewModel.transform(input: input)
+        }
+        output?.sink(receiveValue: {[unowned self] state in
             self.render(state)
         }).store(in: &cancellables)
     }
@@ -87,13 +90,15 @@ class MovieDetailsViewController: UIViewController {
     }
 
     private func show(_ movieDetails: MovieViewModel) {
-        title = movieDetails.title
-        header.text = movieDetails.title
-        subtitle.text = movieDetails.subtitle
-        rating.text = movieDetails.rating
-        overview.text = movieDetails.overview
-        movieDetails.poster
-            .assign(to: \UIImageView.image, on: self.poster)
-            .store(in: &cancellables)
+        DispatchQueue.main.async {
+            self.title = movieDetails.title
+            self.header.text = movieDetails.title
+            self.subtitle.text = movieDetails.subtitle
+            self.rating.text = movieDetails.rating
+            self.overview.text = movieDetails.overview
+            movieDetails.poster
+                .assign(to: \UIImageView.image, on: self.poster)
+                .store(in: &self.cancellables)
+        }
     }
 }

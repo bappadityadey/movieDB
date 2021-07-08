@@ -22,6 +22,9 @@ protocol MoviesUseCaseType: AutoMockable {
     
     // Fetches latest playing movies
     func fetchLatestMovies(with page: Int) -> AnyPublisher<Result<Movies, Error>, Never>
+    
+    func loadOfflineMoviesList() -> AnyPublisher<[Movie]?, Never>
+    func loadOfflineMovie(with id: Int) -> AnyPublisher<Movie?, Never>
 }
 
 final class MoviesUseCase: MoviesUseCaseType {
@@ -61,6 +64,24 @@ final class MoviesUseCase: MoviesUseCaseType {
             let url = size.url.appendingPathComponent(poster)
             return self.imageLoaderService.loadImage(from: url)
         })
+        .subscribe(on: Scheduler.backgroundWorkScheduler)
+        .receive(on: Scheduler.mainScheduler)
+        .share()
+        .eraseToAnyPublisher()
+    }
+    
+    func loadOfflineMovie(with id: Int) -> AnyPublisher<Movie?, Never> {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else { return .just(nil) }
+        return Deferred { return Just(MovieDetailsHandler.fetchMovieDetail(id, moc: context)) }
+        .subscribe(on: Scheduler.backgroundWorkScheduler)
+        .receive(on: Scheduler.mainScheduler)
+        .share()
+        .eraseToAnyPublisher()
+    }
+    
+    func loadOfflineMoviesList() -> AnyPublisher<[Movie]?, Never> {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else { return .just(nil) }
+        return Deferred { return Just(MovieListHandler.fetchSavedNowPlayingMovieList(in: context)) }
         .subscribe(on: Scheduler.backgroundWorkScheduler)
         .receive(on: Scheduler.mainScheduler)
         .share()

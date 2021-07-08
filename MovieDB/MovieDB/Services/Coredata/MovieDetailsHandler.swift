@@ -36,13 +36,39 @@ class MovieDetailsHandler {
                     savedItemsMO.setValue(movieMO.poster_path, forKey: "poster_path")
                     savedItemsMO.setValue(movieMO.genre_ids, forKey: "genre_ids")
                     savedItemsMO.setValue(movieMO.index, forKey: "index")
-                    savedItemsMO.setValue(movieMO.rating, forKey: "rating")
+                    savedItemsMO.setValue(movieMO.vote_average, forKey: "vote_average")
+                    savedItemsMO.setValue(movieMO.release_date, forKey: "release_date")
                 }
             }
             try moc.save()
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
+    }
+    
+    static func fetchMovieDetail(_ movieId: Int, moc: NSManagedObjectContext) -> Movie? {
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "MovieMO")
+        let predicate = NSPredicate(format: "id == %d", movieId)
+        fetchRequest.predicate = predicate
+        var movieListVO: [Movie]?
+        do {
+            let movieMO = try moc.fetch(fetchRequest)
+            if movieMO.count > 0 {
+                let json = JSONConverter.convertToJSONArray(moArray: movieMO)
+
+                if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted) {
+                    do {
+                        movieListVO = try JSONDecoder().decode([Movie].self, from: jsonData)
+                        return movieListVO?.first
+                    } catch {
+                        print("error occurred while creating movie VO = \(error), json = \(json)")
+                    }
+                }
+            }
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        return nil
     }
     
     static func isMovieExistsInFavourites(_ movieId: Int, moc: NSManagedObjectContext) -> Bool {

@@ -27,15 +27,15 @@ struct Movie {
     let title: String
     let overview: String
     let poster_path: String?
-    let voteAverage: Float?
-    let releaseDate: String?
-    let backdropPath: String?
-    let originalLanguage: String?
-    let originalTitle: String?
+    let vote_average: Float?
+    let release_date: String?
+    let backdrop_path: String?
+    let original_language: String?
+    let original_title: String?
     let popularity: Float?
     let video: Bool?
     let adult: Bool?
-    let voteCount: Int?
+    let vote_count: Int?
     let genre_ids: [GenreId]?
     let genres: [Genre]?
 }
@@ -59,13 +59,13 @@ extension Movie: Decodable {
         case popularity
         case adult
         case poster_path
-        case voteAverage = "vote_average"
-        case releaseDate = "release_date"
+        case vote_average
+        case release_date
         case genre_ids
         case genres
-        case backdropPath = "backdrop_path"
-        case originalLanguage = "original_language"
-        case originalTitle = "original_title"
-        case voteCount = "vote_count"
+        case backdrop_path
+        case original_language
+        case original_title
+        case vote_count
     }
 }

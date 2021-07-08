@@ -16,7 +16,7 @@ struct MovieViewModelBuilder {
                               subtitle: movie.subtitle,
                               overview: movie.overview,
                               poster: imageLoader(movie),
-                              rating: String(format: "%.2f", movie.voteAverage ?? 0.0))
+                              rating: String(format: "%.2f", movie.vote_average ?? 0.0))
     }
 }
 
@@ -35,7 +35,7 @@ extension Movie {
         return "\(releaseYear) | \(genresDescription)"
     }
     var releaseYear: Int {
-        let date = releaseDate.flatMap { Movie.dateFormatter.date(from: $0) } ?? Date()
+        let date = release_date.flatMap { Movie.dateFormatter.date(from: $0) } ?? Date()
         return Calendar.current.component(.year, from: date)
     }
 

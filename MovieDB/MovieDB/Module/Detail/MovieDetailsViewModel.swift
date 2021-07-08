@@ -27,13 +27,25 @@ class MovieDetailsViewModel: MovieDetailsViewModelType {
                 }
             })
             .eraseToAnyPublisher()
+        
         let loading: MovieDetailsViewModelOutput = input.appear.map({_ in .loading }).eraseToAnyPublisher()
-
+        return Publishers.Merge(loading, movieDetails).removeDuplicates().eraseToAnyPublisher()
+    }
+    
+    func offlineMovieDetails(input: MovieDetailsViewModelInput) -> MovieDetailsViewModelOutput {
+        let movieDetails = input.appear
+            .flatMap({[unowned self] _ in self.useCase.loadOfflineMovie(with: self.movieId) })
+            .map({ result -> MovieDetailsState in
+                return .success(self.viewModel(from: result!))
+            })
+            .eraseToAnyPublisher()
+        
+        let loading: MovieDetailsViewModelOutput = input.appear.map({_ in .loading }).eraseToAnyPublisher()
         return Publishers.Merge(loading, movieDetails).removeDuplicates().eraseToAnyPublisher()
     }
 
     private func viewModel(from movie: Movie) -> MovieViewModel {
-        return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .original) })
+        return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
     }
     
     func addToFavourite() {

@@ -9,7 +9,6 @@ import Foundation
 import CoreData
 
 class MovieListHandler {
-    typealias JSON = [String: Any]
 
     static func clearNowPlayingMO(moc: NSManagedObjectContext) {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "NowPlayingMO")
@@ -33,7 +32,8 @@ class MovieListHandler {
                     nowPlayingMO.setValue(movie.poster_path, forKey: "poster_path")
                     nowPlayingMO.setValue(movie.genre_ids.map{ $0.map{ $0.rawValue }}, forKey: "genre_ids")
                     nowPlayingMO.setValue(index, forKey: "index")
-                    nowPlayingMO.setValue(String(format: "%.2f", movie.voteAverage ?? 0.0), forKey: "rating")
+                    nowPlayingMO.setValue(movie.vote_average, forKey: "vote_average")
+                    nowPlayingMO.setValue(movie.release_date, forKey: "release_date")
                 }
             }
         }
@@ -53,13 +53,13 @@ class MovieListHandler {
         do {
             let nowPlayingMO = try moc.fetch(fetchRequest)
             if nowPlayingMO.count > 0 {
-                let json = Self.convertToJSONArray(moArray: nowPlayingMO)
+                let json = JSONConverter.convertToJSONArray(moArray: nowPlayingMO)
 
                 if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted) {
                     do {
                         movieListVO = try JSONDecoder().decode([Movie].self, from: jsonData)
                     } catch {
-                        print("error occurred while creating drawing pin VO = \(error), json = \(json)")
+                        print("error occurred while creating movie VO = \(error), json = \(json)")
                     }
                 }
             }
@@ -69,18 +69,27 @@ class MovieListHandler {
         return movieListVO ?? []
     }
     
-    static func convertToJSONArray(moArray: [NSManagedObject]) -> [JSON] {
-        var jsonArray: [[String: Any]] = []
-        for item in moArray {
-            var dict: [String: Any] = [:]
-            for attribute in item.entity.attributesByName {
-                //check if value is present, then add key to dictionary so as to avoid the nil value crash
-                if let value = item.value(forKey: attribute.key) {
-                    dict[attribute.key] = value
+    static func fetchFavouritesMovieList(in moc: NSManagedObjectContext) -> [Movie] {
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "FavouriteMovieMO")
+        let sort = NSSortDescriptor(key: "index", ascending: true)
+        fetchRequest.sortDescriptors = [sort]
+        var movieListVO: [Movie]?
+        do {
+            let nowPlayingMO = try moc.fetch(fetchRequest)
+            if nowPlayingMO.count > 0 {
+                let json = JSONConverter.convertToJSONArray(moArray: nowPlayingMO)
+
+                if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted) {
+                    do {
+                        movieListVO = try JSONDecoder().decode([Movie].self, from: jsonData)
+                    } catch {
+                        print("error occurred while creating movie VO = \(error), json = \(json)")
+                    }
                 }
             }
-            jsonArray.append(dict)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
         }
-        return jsonArray
+        return movieListVO ?? []
     }
 }

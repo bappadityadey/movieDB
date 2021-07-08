@@ -50,7 +50,7 @@ final class MoviesListViewModel: MoviesListViewModelType {
             .map({ result -> MoviesSearchState in
                 switch result {
                 case .success(let movies) where movies.items.isEmpty: return .noResults
-                case .success(let movies): return .success(self.viewModels(from: movies.items))
+                case .success(let movies): return .success(self.viewModels(from: movies.items, isSearching: true))
                 case .failure(let error): return .failure(error)
                 }
             })
@@ -82,12 +82,25 @@ final class MoviesListViewModel: MoviesListViewModelType {
         let initialState: MoviesListViewModelOuput = .just(.idle)
         return Publishers.Merge(initialState, latestMovies).removeDuplicates().eraseToAnyPublisher()
     }
+    
+    func offlineMoviesList(input: MoviesListViewModelInput) -> MoviesListViewModelOuput {
+        let latestMovies = self.useCase.loadOfflineMoviesList()
+            .map({ result -> MoviesSearchState in
+                return .success(self.viewModels(from: result!))
+            })
+            .eraseToAnyPublisher()
+        
+        let initialState: MoviesListViewModelOuput = .just(.idle)
+        return Publishers.Merge(initialState, latestMovies).removeDuplicates().eraseToAnyPublisher()
+    }
 
-    private func viewModels(from movies: [Movie]) -> [MovieViewModel] {
-        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
-            return []
+    private func viewModels(from movies: [Movie], isSearching: Bool = false) -> [MovieViewModel] {
+        if !isSearching {
+            guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
+                return []
+            }
+            MovieListHandler.saveCurrentMovieList(movies, moc: context)
         }
-        MovieListHandler.saveCurrentMovieList(movies, moc: context)
         return movies.map({[unowned self] movie in
             return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
         })

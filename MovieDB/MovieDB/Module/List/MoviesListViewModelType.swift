@@ -43,6 +43,7 @@ typealias MoviesListViewModelOuput = AnyPublisher<MoviesSearchState, Never>
 
 protocol MoviesListViewModelType {
     func transform(input: MoviesListViewModelInput) -> MoviesListViewModelOuput
+    func offlineMoviesList(input: MoviesListViewModelInput) -> MoviesListViewModelOuput
     func searchMovies(input: MoviesListViewModelInput) -> MoviesListViewModelOuput
     func fetchNextPageData(page: Int) -> MoviesListViewModelOuput
     var totalPages: Int { get set }
