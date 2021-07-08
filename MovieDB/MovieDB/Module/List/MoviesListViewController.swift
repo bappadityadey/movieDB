@@ -103,19 +103,19 @@ class MoviesListViewController : UIViewController {
         switch state {
         case .idle:
             loadingView.isHidden = true
-            update(with: [], animate: true, isSearch: isSearch)
+            update(with: [], isSearch: isSearch)
         case .loading:
             loadingView.isHidden = false
-            update(with: [], animate: true, isSearch: isSearch)
+            update(with: [], isSearch: isSearch)
         case .noResults:
             loadingView.isHidden = true
-            update(with: [], animate: true, isSearch: isSearch)
+            update(with: [], isSearch: isSearch)
         case .failure:
             loadingView.isHidden = true
-            update(with: [], animate: true, isSearch: isSearch)
+            update(with: [], isSearch: isSearch)
         case .success(let movies):
             loadingView.isHidden = true
-            update(with: movies, animate: true, isSearch: isSearch)
+            update(with: movies, isSearch: isSearch)
         }
     }
 }
@@ -139,7 +139,7 @@ fileprivate extension MoviesListViewController {
         )
     }
 
-    func update(with movies: [MovieViewModel], animate: Bool = true, isSearch: Bool = false) {
+    func update(with movies: [MovieViewModel], isSearch: Bool = false) {
         if !isSearch {
             moviesList.append(contentsOf: movies)
         }
@@ -147,7 +147,7 @@ fileprivate extension MoviesListViewController {
             var snapshot = NSDiffableDataSourceSnapshot<Section, MovieViewModel>()
             snapshot.appendSections(Section.allCases)
             snapshot.appendItems(isSearch ? movies : self.moviesList.uniqueElements(), toSection: .movies)
-            self.dataSource.apply(snapshot, animatingDifferences: animate)
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
 }
