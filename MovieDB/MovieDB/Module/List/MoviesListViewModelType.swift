@@ -39,11 +39,11 @@ extension MoviesSearchState: Equatable {
     }
 }
 
-typealias MoviesSearchViewModelOuput = AnyPublisher<MoviesSearchState, Never>
+typealias MoviesListViewModelOuput = AnyPublisher<MoviesSearchState, Never>
 
-protocol MoviesSearchViewModelType {
-    func transform(input: MoviesListViewModelInput) -> MoviesSearchViewModelOuput
-    func searchMovies(input: MoviesListViewModelInput) -> MoviesSearchViewModelOuput
-    func fetchNextPageData(page: Int) -> MoviesSearchViewModelOuput
+protocol MoviesListViewModelType {
+    func transform(input: MoviesListViewModelInput) -> MoviesListViewModelOuput
+    func searchMovies(input: MoviesListViewModelInput) -> MoviesListViewModelOuput
+    func fetchNextPageData(page: Int) -> MoviesListViewModelOuput
     var totalPages: Int { get set }
 }

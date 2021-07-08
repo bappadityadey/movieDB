@@ -14,7 +14,7 @@ class MoviesListViewController : UIViewController {
     var isSearching: Bool = false
 
     private var cancellables: [AnyCancellable] = []
-    private var viewModel: MoviesSearchViewModelType?
+    private var viewModel: MoviesListViewModelType?
     private let selection = PassthroughSubject<Int, Never>()
     private let search = PassthroughSubject<String, Never>()
     private let appear = PassthroughSubject<Void, Never>()
@@ -70,7 +70,7 @@ class MoviesListViewController : UIViewController {
         searchController.isActive = true
     }
 
-    private func bind(to viewModel: MoviesSearchViewModelType) {
+    private func bind(to viewModel: MoviesListViewModelType) {
         if AppDelegate.appDelegateInstance?.isReachable == false {
             let offlineMovies = MovieListHandler.fetchSavedNowPlayingMovieList(in: (AppDelegate.appDelegateInstance?.backgroundContext())!)
             let result = offlineMovies.map({[unowned self] movie in

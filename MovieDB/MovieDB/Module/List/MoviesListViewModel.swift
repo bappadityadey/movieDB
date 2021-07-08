@@ -7,7 +7,7 @@
 
 import Combine
 
-final class MoviesListViewModel: MoviesSearchViewModelType {
+final class MoviesListViewModel: MoviesListViewModelType {
     var totalPages: Int = 1
 
     private let useCase: MoviesUseCaseType
@@ -19,7 +19,7 @@ final class MoviesListViewModel: MoviesSearchViewModelType {
         self.page = page
     }
     
-    func fetchNextPageData(page: Int) -> MoviesSearchViewModelOuput {
+    func fetchNextPageData(page: Int) -> MoviesListViewModelOuput {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
                 
@@ -33,11 +33,11 @@ final class MoviesListViewModel: MoviesSearchViewModelType {
             })
             .eraseToAnyPublisher()
         
-        let initialState: MoviesSearchViewModelOuput = .just(.idle)
+        let initialState: MoviesListViewModelOuput = .just(.idle)
         return Publishers.Merge(initialState, latestMovies).removeDuplicates().eraseToAnyPublisher()
     }
     
-    func searchMovies(input: MoviesListViewModelInput) -> MoviesSearchViewModelOuput {
+    func searchMovies(input: MoviesListViewModelInput) -> MoviesListViewModelOuput {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
                 
@@ -56,14 +56,14 @@ final class MoviesListViewModel: MoviesSearchViewModelType {
             })
             .eraseToAnyPublisher()
         
-        let initialState: MoviesSearchViewModelOuput = .just(.idle)
-        let emptySearchString: MoviesSearchViewModelOuput = searchInput.filter({ $0.isEmpty }).map({ _ in .idle }).eraseToAnyPublisher()
-        let idle: MoviesSearchViewModelOuput = Publishers.Merge(initialState, emptySearchString).eraseToAnyPublisher()
+        let initialState: MoviesListViewModelOuput = .just(.idle)
+        let emptySearchString: MoviesListViewModelOuput = searchInput.filter({ $0.isEmpty }).map({ _ in .idle }).eraseToAnyPublisher()
+        let idle: MoviesListViewModelOuput = Publishers.Merge(initialState, emptySearchString).eraseToAnyPublisher()
 
         return Publishers.Merge(idle, movies).removeDuplicates().eraseToAnyPublisher()
     }
 
-    func transform(input: MoviesListViewModelInput) -> MoviesSearchViewModelOuput {
+    func transform(input: MoviesListViewModelInput) -> MoviesListViewModelOuput {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
                 
@@ -79,7 +79,7 @@ final class MoviesListViewModel: MoviesSearchViewModelType {
             })
             .eraseToAnyPublisher()
         
-        let initialState: MoviesSearchViewModelOuput = .just(.idle)
+        let initialState: MoviesListViewModelOuput = .just(.idle)
         return Publishers.Merge(initialState, latestMovies).removeDuplicates().eraseToAnyPublisher()
     }
 
