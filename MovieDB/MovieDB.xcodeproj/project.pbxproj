@@ -43,6 +43,9 @@
 		3E26C3E22695FBA000B07386 /* MovieDetailsViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3DE2695FBA000B07386 /* MovieDetailsViewModelType.swift */; };
 		3E26C3E32695FBA000B07386 /* MovieDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3DF2695FBA000B07386 /* MovieDetailsViewModel.swift */; };
 		3E26C3E42695FBA000B07386 /* MovieDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3E02695FBA000B07386 /* MovieDetailsViewController.swift */; };
+		3E26C3F62696B51300B07386 /* MovieListHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3F52696B51300B07386 /* MovieListHandler.swift */; };
+		3E26C3F82696CFDE00B07386 /* MovieMO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3F72696CFDE00B07386 /* MovieMO.swift */; };
+		3E26C3FA2696E0FF00B07386 /* MovieDetailsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E26C3F92696E0FF00B07386 /* MovieDetailsHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +108,9 @@
 		3E26C3DE2695FBA000B07386 /* MovieDetailsViewModelType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewModelType.swift; sourceTree = "<group>"; };
 		3E26C3DF2695FBA000B07386 /* MovieDetailsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewModel.swift; sourceTree = "<group>"; };
 		3E26C3E02695FBA000B07386 /* MovieDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewController.swift; sourceTree = "<group>"; };
+		3E26C3F52696B51300B07386 /* MovieListHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieListHandler.swift; sourceTree = "<group>"; };
+		3E26C3F72696CFDE00B07386 /* MovieMO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieMO.swift; sourceTree = "<group>"; };
+		3E26C3F92696E0FF00B07386 /* MovieDetailsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailsHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +196,7 @@
 		3E26C38B26959BE600B07386 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				3E26C3F42696B4FE00B07386 /* Coredata */,
 				3E26C38C26959BE600B07386 /* Network */,
 				3E26C39126959BE600B07386 /* ImageLoader */,
 				3E26C39526959BE600B07386 /* Scheduler.swift */,
@@ -246,6 +253,7 @@
 				3E26C3AD2695A9E400B07386 /* Movies.swift */,
 				3E26C3AF2695AA4100B07386 /* Genre.swift */,
 				3E26C3B12695AA8400B07386 /* ImageSize.swift */,
+				3E26C3F72696CFDE00B07386 /* MovieMO.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -282,6 +290,15 @@
 				3E26C3DE2695FBA000B07386 /* MovieDetailsViewModelType.swift */,
 			);
 			path = Detail;
+			sourceTree = "<group>";
+		};
+		3E26C3F42696B4FE00B07386 /* Coredata */ = {
+			isa = PBXGroup;
+			children = (
+				3E26C3F52696B51300B07386 /* MovieListHandler.swift */,
+				3E26C3F92696E0FF00B07386 /* MovieDetailsHandler.swift */,
+			);
+			path = Coredata;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -419,13 +436,16 @@
 				3E26C3CB2695C3CC00B07386 /* UIViewController+Child.swift in Sources */,
 				3E26C3C62695C2BD00B07386 /* MovieTableViewCell.swift in Sources */,
 				3E26C3A326959C5000B07386 /* AutoMockable.swift in Sources */,
+				3E26C3F82696CFDE00B07386 /* MovieMO.swift in Sources */,
 				3E26C3AA2695A85400B07386 /* MoviesUseCase.swift in Sources */,
 				3E26C35726959AF900B07386 /* AppDelegate.swift in Sources */,
+				3E26C3FA2696E0FF00B07386 /* MovieDetailsHandler.swift in Sources */,
 				3E26C3A62695A5F000B07386 /* APIConstants.swift in Sources */,
 				3E26C3C12695C2BD00B07386 /* MoviesListViewController.swift in Sources */,
 				3E26C3E42695FBA000B07386 /* MovieDetailsViewController.swift in Sources */,
 				3E26C3C32695C2BD00B07386 /* MoviesSearchViewModelType.swift in Sources */,
 				3E26C3AB2695A85400B07386 /* Resource+Movie.swift in Sources */,
+				3E26C3F62696B51300B07386 /* MovieListHandler.swift in Sources */,
 				3E26C39A26959BE600B07386 /* ImageCache.swift in Sources */,
 				3E26C39C26959BE600B07386 /* ImageLoaderServiceType.swift in Sources */,
 				3E26C39B26959BE600B07386 /* ImageLoaderService.swift in Sources */,
@@ -612,15 +632,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 92Z8NPL9MX;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VYAKS7W7VC;
 				INFOPLIST_FILE = MovieDB/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bappaditya.MovieDB;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oraclecorp.internal.ent2.cegbu.aconex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "CEGBU Aconex Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -631,15 +653,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 92Z8NPL9MX;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = VYAKS7W7VC;
 				INFOPLIST_FILE = MovieDB/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bappaditya.MovieDB;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oraclecorp.internal.ent2.cegbu.aconex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "CEGBU Aconex";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -28,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         configureReachability()
         configureWindow()
+        let docDir = try? FileManager.default.documentDirectoryPath()
+        if let documentDir = docDir {
+            print("docDir = \(documentDir )")
+        }
         return true
     }
 
@@ -58,6 +62,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
+    }
+    
+    func backgroundContext() -> NSManagedObjectContext {
+        let newBackgroundContext = persistentContainer.newBackgroundContext()
+        newBackgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
+        
+        return newBackgroundContext
     }
 
 }
@@ -115,5 +126,23 @@ extension AppDelegate {
                 isReachable = false
             }
         }
+    }
+}
+
+
+extension FileManager {
+    func documentDirectoryPath() throws -> String? {
+        var docDir: String?
+        do {
+        let documentsURL = try
+            FileManager.default.url(for: .documentDirectory,
+                                    in: .userDomainMask,
+                                    appropriateFor: nil,
+                                    create: false)
+            docDir = documentsURL.path
+        } catch {
+            print("could not get docDirPath due to FileManager error: \(error)")
+        }
+        return docDir
     }
 }

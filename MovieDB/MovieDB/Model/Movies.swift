@@ -22,21 +22,21 @@ extension Movies: Decodable {
     }
 }
 
-struct Movie {
+struct Movie: Codable {
     let id: Int
     let title: String
     let overview: String
-    let poster: String?
-    let voteAverage: Float
+    let poster_path: String?
+    let voteAverage: Float?
     let releaseDate: String?
     let backdropPath: String?
     let originalLanguage: String?
     let originalTitle: String?
-    let popularity: Float
-    let video: Bool
-    let adult: Bool
-    let voteCount: Int
-    let genreIds: [GenreId]?
+    let popularity: Float?
+    let video: Bool?
+    let adult: Bool?
+    let voteCount: Int?
+    let genre_ids: [GenreId]?
     let genres: [Genre]?
 }
 
@@ -50,7 +50,7 @@ extension Movie: Hashable {
     }
 }
 
-extension Movie: Decodable {
+extension Movie {
     enum CodingKeys: String, CodingKey {
         case id
         case title
@@ -58,11 +58,11 @@ extension Movie: Decodable {
         case video
         case popularity
         case adult
-        case poster = "poster_path"
+        case poster_path
         case voteAverage = "vote_average"
         case releaseDate = "release_date"
-        case genreIds = "genre_ids"
-        case genres = "genres"
+        case genre_ids
+        case genres
         case backdropPath = "backdrop_path"
         case originalLanguage = "original_language"
         case originalTitle = "original_title"

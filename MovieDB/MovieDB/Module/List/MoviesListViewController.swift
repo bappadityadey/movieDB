@@ -71,18 +71,26 @@ class MoviesListViewController : UIViewController {
     }
 
     private func bind(to viewModel: MoviesSearchViewModelType) {
-        cancellables.forEach { $0.cancel() }
-        cancellables.removeAll()
-        let input = MoviesListViewModelInput(appear: appear.eraseToAnyPublisher(),
-                                               search: search.eraseToAnyPublisher(),
-                                               selection: selection.eraseToAnyPublisher(),
-                                               load: load.eraseToAnyPublisher())
+        if AppDelegate.appDelegateInstance?.isReachable == false {
+            let offlineMovies = MovieListHandler.fetchSavedNowPlayingMovieList(in: (AppDelegate.appDelegateInstance?.backgroundContext())!)
+            let result = offlineMovies.map({[unowned self] movie in
+                return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
+            })
+            render(.success(result))
+        } else {
+            cancellables.forEach { $0.cancel() }
+            cancellables.removeAll()
+            let input = MoviesListViewModelInput(appear: appear.eraseToAnyPublisher(),
+                                                   search: search.eraseToAnyPublisher(),
+                                                   selection: selection.eraseToAnyPublisher(),
+                                                   load: load.eraseToAnyPublisher())
 
-        let output = viewModel.transform(input: input)
+            let output = viewModel.transform(input: input)
 
-        output.sink(receiveValue: {[unowned self] state in
-            self.render(state)
-        }).store(in: &cancellables)
+            output.sink(receiveValue: {[unowned self] state in
+                self.render(state)
+            }).store(in: &cancellables)
+        }
     }
 
     private func render(_ state: MoviesSearchState) {

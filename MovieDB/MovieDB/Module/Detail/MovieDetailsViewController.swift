@@ -28,7 +28,7 @@ class MovieDetailsViewController: UIViewController {
             bind(to: vm)
         }
         
-        let favButton = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(favouriteMovieAction))
+        let favButton = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: self, action: #selector(favouriteMovieAction))
         self.navigationItem.rightBarButtonItem = favButton
     }
     

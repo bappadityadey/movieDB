@@ -16,13 +16,13 @@ struct MovieViewModelBuilder {
                               subtitle: movie.subtitle,
                               overview: movie.overview,
                               poster: imageLoader(movie),
-                              rating: String(format: "%.2f", movie.voteAverage))
+                              rating: String(format: "%.2f", movie.voteAverage ?? 0.0))
     }
 }
 
 extension Movie {
     var genreNames: [String] {
-        if let genreIds = genreIds {
+        if let genreIds = genre_ids {
             return genreIds.map { $0.description }
         }
         if let genres = genres {

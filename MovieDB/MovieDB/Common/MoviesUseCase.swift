@@ -55,9 +55,9 @@ final class MoviesUseCase: MoviesUseCaseType {
     }
 
     func loadImage(for movie: Movie, size: ImageSize) -> AnyPublisher<UIImage?, Never> {
-        return Deferred { return Just(movie.poster) }
+        return Deferred { return Just(movie.poster_path) }
         .flatMap({[unowned self] poster -> AnyPublisher<UIImage?, Never> in
-            guard let poster = movie.poster else { return .just(nil) }
+            guard let poster = movie.poster_path else { return .just(nil) }
             let url = size.url.appendingPathComponent(poster)
             return self.imageLoaderService.loadImage(from: url)
         })

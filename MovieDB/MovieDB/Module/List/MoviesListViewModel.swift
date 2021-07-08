@@ -58,6 +58,10 @@ final class MoviesListViewModel: MoviesSearchViewModelType {
     }
 
     private func viewModels(from movies: [Movie]) -> [MovieViewModel] {
+        guard let context = AppDelegate.appDelegateInstance?.backgroundContext() else {
+            return []
+        }
+        MovieListHandler.saveCurrentMovieList(movies, moc: context)
         return movies.map({[unowned self] movie in
             return MovieViewModelBuilder.viewModel(from: movie, imageLoader: {[unowned self] movie in self.useCase.loadImage(for: movie, size: .small) })
         })
