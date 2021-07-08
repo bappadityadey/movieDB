@@ -10,11 +10,12 @@ Small app that fetches a list of recent playing movies from The Movie Database (
 6. View favourite movies in offline
 
 # Tech Stack
-Swift 5
+Swift 5,
 Minimum Deployment Target: 14.5
+Supported Paltforms: iPhone, iPad, iPad Touch
 
 # Architecture
-MVVM with Combine framework
+MVVM with Combine framework,
 Dependency Injection
 
 # Screenshots
